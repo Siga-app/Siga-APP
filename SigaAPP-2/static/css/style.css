@@ -1,0 +1,132 @@
+:root {
+  --logo-beige: #ddd8c5;
+  --dark-green: #3B5B4F;
+  --accent-green: #8EB695;
+  --text-color: #333333;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--logo-beige);
+  color: var(--text-color);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.bg-siga {
+  background-color: var(--dark-green) !important;
+}
+.navbar-dark .navbar-nav .nav-link {
+  color: #ffffff !important;
+}
+.logo-text {
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.container {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.jumbotron {
+  background: none;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.index-logo {
+  max-width: 250px;
+  display: block;
+  margin: 0 auto 20px auto;
+}
+
+h1, h2, h3, h4 {
+  color: var(--text-color);
+}
+
+.card {
+  background-color: #ffffff;
+  color: var(--text-color);
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  margin-bottom: 1rem;
+}
+
+.btn {
+  border-radius: 5px;
+  margin-right: 5px;
+}
+.btn-primary {
+  background-color: var(--dark-green) !important;
+  border-color: var(--dark-green) !important;
+  color: #fff !important;
+}
+.btn-secondary {
+  background-color: var(--accent-green) !important;
+  border-color: var(--accent-green) !important;
+  color: #fff !important;
+}
+.btn-dark {
+  background-color: #333 !important;
+  border-color: #333 !important;
+  color: #fff !important;
+}
+
+.table-responsive {
+  margin-top: 1rem;
+}
+.table thead th {
+  background-color: var(--dark-green);
+  color: #fff;
+  border: none;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(59,91,79,0.05);
+}
+.table td, .table th {
+  color: var(--text-color);
+  border-color: rgba(0,0,0,0.1);
+}
+
+.form-control, .custom-select {
+  border-radius: 5px;
+  background-color: #fff;
+  color: var(--text-color);
+  border: 1px solid #ccc;
+}
+
+.alert-info {
+  background-color: rgba(59,91,79,0.1);
+  color: var(--text-color);
+  border: 1px solid var(--dark-green);
+}
+
+.urgent-row {
+  background-color: #f8d7da !important;
+}
+
+.list-group-item {
+  background-color: #fff;
+  color: var(--text-color);
+  margin-bottom: 5px;
+  border: none;
+  border-radius: 5px;
+}
+
+a {
+  color: var(--dark-green);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--accent-green);
+}
+
+.container {
+  margin-bottom: 2rem;
+}
