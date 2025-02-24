@@ -7,3 +7,5 @@ xhtml2pdf
 APScheduler
 pytz
 sqlalchemy
+gunicorn
+
