@@ -32,17 +32,17 @@
       <option value="D">D</option>
     </select>
   </div>
-  <!-- Colocar a Origem logo após o nome do aluno -->
+  <!-- Origem da Solicitação -->
   <div class="form-group">
     <label for="origem">Origem da Solicitação:</label>
-    <select class="form-control" id="origem" name="origem" required onchange="toggleFields()">
+    <select class="form-control" id="origem" name="origem" required onchange="toggleDescriptionAndWhatsapp()">
       <option value="">Selecione</option>
       <option value="Pessoalmente">Pessoalmente</option>
       <option value="Ligação">Ligação</option>
       <option value="WhatsAPP">WhatsAPP</option>
     </select>
   </div>
-  <!-- Se a origem for WhatsAPP, usaremos o campo de mensagem; caso contrário, a descrição -->
+  <!-- Se a origem for WhatsAPP, mostra o campo correspondente; senão, mostra a descrição -->
   <div class="form-group" id="descriptionGroup">
     <label for="description">Descrição:</label>
     <textarea class="form-control" id="description" name="description" rows="4"></textarea>
@@ -51,9 +51,10 @@
     <label for="whatsapp_message">Mensagem do WhatsAPP:</label>
     <textarea class="form-control" id="whatsapp_message" name="whatsapp_message" rows="3"></textarea>
   </div>
+  <!-- Categoria -->
   <div class="form-group">
     <label for="category">Categoria:</label>
-    <select class="form-control" id="category" name="category" required>
+    <select class="form-control" id="category" name="category" required onchange="toggleSubcategory()">
       <option value="">Selecione</option>
       <option value="RECLAMAÇÃO">RECLAMAÇÃO</option>
       <option value="SUGESTÃO">SUGESTÃO</option>
@@ -62,8 +63,9 @@
       <option value="SAÚDE">SAÚDE</option>
     </select>
   </div>
-  <div class="form-group">
-    <label for="subcategory">Subcategoria (se aplicável):</label>
+  <!-- Subcategoria: aparece somente se Categoria for "PEDIDOS" -->
+  <div class="form-group" id="subcategoryGroup" style="display:none;">
+    <label for="subcategory">Subcategoria:</label>
     <select class="form-control" id="subcategory" name="subcategory">
       <option value="">Selecione</option>
       <option value="SAÍDA ANTECIPADA">SAÍDA ANTECIPADA</option>
@@ -80,7 +82,6 @@
       <option value="Flávia">Flávia</option>
     </select>
   </div>
-  <!-- Campo de telefone -->
   <div class="form-group">
     <label for="telefone">Telefone (somente dígitos; sem o +55):</label>
     <input type="text" class="form-control" id="telefone" name="telefone" required>
@@ -93,9 +94,9 @@
 </form>
 
 <script>
-function toggleFields() {
-  var origin = document.getElementById("origem").value;
-  if (origin === "WhatsAPP") {
+function toggleDescriptionAndWhatsapp() {
+  var origem = document.getElementById("origem").value;
+  if (origem === "WhatsAPP") {
     document.getElementById("descriptionGroup").style.display = "none";
     document.getElementById("whatsappGroup").style.display = "block";
     document.getElementById("whatsapp_message").required = true;
@@ -105,6 +106,16 @@ function toggleFields() {
     document.getElementById("whatsappGroup").style.display = "none";
     document.getElementById("description").required = true;
     document.getElementById("whatsapp_message").required = false;
+  }
+}
+
+function toggleSubcategory() {
+  var category = document.getElementById("category").value;
+  if (category === "PEDIDOS") {
+    document.getElementById("subcategoryGroup").style.display = "block";
+  } else {
+    document.getElementById("subcategoryGroup").style.display = "none";
+    document.getElementById("subcategory").value = "";
   }
 }
 </script>
