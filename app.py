@@ -1,5 +1,5 @@
 import os
-# Garanta que a pasta persistente exista no container.
+# Garante que a pasta persistente exista no container.
 os.makedirs("/app/instance", exist_ok=True)
 
 from flask import Flask, render_template, request, redirect, url_for, flash, Response, send_file
@@ -28,7 +28,7 @@ migrate = Migrate(app, db)
 # Definindo o timezone de São Paulo
 sp_tz = pytz.timezone('America/Sao_Paulo')
 
-# Filtro para URL encoding (para uso em links, ex: WhatsApp)
+# Filtro para URL encoding (usado para links, ex: WhatsApp)
 @app.template_filter('urlencode')
 def urlencode_filter(s):
     if isinstance(s, str):
@@ -43,7 +43,7 @@ class Solicitation(db.Model):
     grade = db.Column(db.String(50), nullable=False)         # "Série - Turma"
     category = db.Column(db.String(50), nullable=False)
     subcategory = db.Column(db.String(50), nullable=True)
-    # Único campo para a descrição (ou, se a origem for WhatsAPP, usará o campo whatsapp_message)
+    # Único campo para a descrição (se origem for WhatsAPP, esse campo fica vazio e usamos whatsapp_message)
     description = db.Column(db.Text, nullable=False)
     whatsapp_message = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(50), default='Pendente')    # "Pendente", "Respondida", "Finalizada"
@@ -54,7 +54,7 @@ class Solicitation(db.Model):
     created_at = db.Column(db.DateTime, server_default=func.now())
     updated_at = db.Column(db.DateTime, server_default=func.now(), onupdate=func.now())
     created_by = db.Column(db.String(100), nullable=False, default="")
-    # Relacionamento com Message com exclusão em cascata: ao deletar a solicitação, remove as mensagens associadas.
+    # Relacionamento com Message com cascade delete
     messages = db.relationship('Message', backref='solicitation', cascade="all, delete-orphan", lazy=True)
 
 # MODELO DE MENSAGEM
@@ -228,7 +228,7 @@ def dashboard():
         last_update_aware = pytz.utc.localize(last_update).astimezone(sp_tz)
         sol.urgent = (current_time - last_update_aware) > timedelta(hours=24)
 
-    # Atualize as categorias para que "DOENÇA" seja substituído por "SAÚDE"
+    # Atualize as categorias: "DOENÇA" foi substituída por "SAÚDE"
     categories = ["RECLAMAÇÃO", "SUGESTÃO", "DÚVIDAS", "PEDIDOS", "SAÚDE"]
     subcategories = ["", "SAÍDA ANTECIPADA", "AUTORIZACAO DE SAÍDA", "PEDIDO PARA REUNIÃO"]
     coordinators = ["Jéssica", "Bruna", "Flávia"]
@@ -274,7 +274,6 @@ def solicitation_detail(id):
         db.session.commit()
         return redirect(url_for('solicitation_detail', id=id))
 
-    # Obtenha as mensagens pelo relacionamento
     messages = solicitation.messages
     coord_message = None
     for m in reversed(messages):
