@@ -1,9 +1,0 @@
-Flask
-Flask-Login
-Flask-Migrate
-Flask-SQLAlchemy
-openpyxl
-xhtml2pdf
-APScheduler
-pytz
-sqlalchemy
