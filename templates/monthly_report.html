@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% block title %}Relatório Mensal - SIGA{% endblock %}
+{% block content %}
+<h2>Relatório Mensal</h2>
+<div class="row">
+  <div class="col-md-3">
+    <div class="card text-white bg-primary mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Total de Solicitações no Mês</h5>
+        <p class="card-text">{{ total_month }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-success mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Finalizadas no Mês</h5>
+        <p class="card-text">{{ resolved_month }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-warning mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Pendentes no Mês</h5>
+        <p class="card-text">{{ pending_month }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-white bg-info mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Tempo Médio de Resolução</h5>
+        <p class="card-text">{{ avg_resolution_month|round(2) }} dias</p>
+      </div>
+    </div>
+  </div>
+</div>
+<h3>Distribuição por Categoria</h3>
+<div style="height:300px;">
+  <canvas id="categoryChartMonthly"></canvas>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  var ctx = document.getElementById('categoryChartMonthly').getContext('2d');
+  var labels = [
+    {% for cat, count in dist_category %}
+      "{{ cat }}",
+    {% endfor %}
+  ];
+  var counts = [
+    {% for cat, count in dist_category %}
+      {{ count }},
+    {% endfor %}
+  ];
+  var categoryChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: counts,
+        backgroundColor: ['#007bff','#28a745','#ffc107','#17a2b8','#dc3545']
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      onClick: function(evt, activeElements) {
+         if(activeElements.length > 0) {
+            var index = activeElements[0]._index;
+            var category = this.data.labels[index];
+            window.location.href = "/dashboard?filter_category=" + encodeURIComponent(category) + "&month=1";
+         }
+      }
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends "layout.html" %}
+{% block title %}Registrar Solicitação - SIGA{% endblock %}
+{% block content %}
+<h2>Registrar Solicitação</h2>
+<form method="POST">
+  <div class="form-group">
+    <label for="parent_name">Nome do Responsável:</label>
+    <input type="text" class="form-control" id="parent_name" name="parent_name" required>
+  </div>
+  <div class="form-group">
+    <label for="child_name">Aluno:</label>
+    <input type="text" class="form-control" id="child_name" name="child_name" required>
+  </div>
+  <div class="form-group">
+    <label for="series">Série:</label>
+    <select class="form-control" id="series" name="series" required>
+      <option value="">Selecione</option>
+      <option value="JUNIORS 1">JUNIORS 1</option>
+      <option value="JUNIORS 2">JUNIORS 2</option>
+      <option value="JUNIORS 3">JUNIORS 3</option>
+      <option value="JUNIORS 4">JUNIORS 4</option>
+      <option value="JUNIORS 5">JUNIORS 5</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="turma">Turma:</label>
+    <select class="form-control" id="turma" name="turma" required>
+      <option value="">Selecione</option>
+      <option value="A">A</option>
+      <option value="B">B</option>
+      <option value="C">C</option>
+      <option value="D">D</option>
+    </select>
+  </div>
+  <!-- Colocar a Origem logo após o nome do aluno -->
+  <div class="form-group">
+    <label for="origem">Origem da Solicitação:</label>
+    <select class="form-control" id="origem" name="origem" required onchange="toggleFields()">
+      <option value="">Selecione</option>
+      <option value="Pessoalmente">Pessoalmente</option>
+      <option value="Ligação">Ligação</option>
+      <option value="WhatsAPP">WhatsAPP</option>
+    </select>
+  </div>
+  <!-- Se a origem for WhatsAPP, usaremos o campo de mensagem; caso contrário, a descrição -->
+  <div class="form-group" id="descriptionGroup">
+    <label for="description">Descrição:</label>
+    <textarea class="form-control" id="description" name="description" rows="4"></textarea>
+  </div>
+  <div class="form-group" id="whatsappGroup" style="display:none;">
+    <label for="whatsapp_message">Mensagem do WhatsAPP:</label>
+    <textarea class="form-control" id="whatsapp_message" name="whatsapp_message" rows="3"></textarea>
+  </div>
+  <div class="form-group">
+    <label for="category">Categoria:</label>
+    <select class="form-control" id="category" name="category" required>
+      <option value="">Selecione</option>
+      <option value="RECLAMAÇÃO">RECLAMAÇÃO</option>
+      <option value="SUGESTÃO">SUGESTÃO</option>
+      <option value="DÚVIDAS">DÚVIDAS</option>
+      <option value="PEDIDOS">PEDIDOS</option>
+      <option value="SAÚDE">SAÚDE</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="subcategory">Subcategoria (se aplicável):</label>
+    <select class="form-control" id="subcategory" name="subcategory">
+      <option value="">Selecione</option>
+      <option value="SAÍDA ANTECIPADA">SAÍDA ANTECIPADA</option>
+      <option value="AUTORIZACAO DE SAÍDA">AUTORIZACAO DE SAÍDA</option>
+      <option value="PEDIDO PARA REUNIÃO">PEDIDO PARA REUNIÃO</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="coordinator">Coordenadora Responsável:</label>
+    <select class="form-control" id="coordinator" name="coordinator" required>
+      <option value="">Selecione</option>
+      <option value="Jéssica">Jéssica</option>
+      <option value="Bruna">Bruna</option>
+      <option value="Flávia">Flávia</option>
+    </select>
+  </div>
+  <!-- Campo de telefone -->
+  <div class="form-group">
+    <label for="telefone">Telefone (somente dígitos; sem o +55):</label>
+    <input type="text" class="form-control" id="telefone" name="telefone" required>
+  </div>
+  <div class="form-group form-check">
+    <input type="checkbox" class="form-check-input" id="possui_audio" name="possui_audio">
+    <label class="form-check-label" for="possui_audio">Marque se há áudio disponível</label>
+  </div>
+  <button type="submit" class="btn btn-primary">Registrar Solicitação</button>
+</form>
+
+<script>
+function toggleFields() {
+  var origin = document.getElementById("origem").value;
+  if (origin === "WhatsAPP") {
+    document.getElementById("descriptionGroup").style.display = "none";
+    document.getElementById("whatsappGroup").style.display = "block";
+    document.getElementById("whatsapp_message").required = true;
+    document.getElementById("description").required = false;
+  } else {
+    document.getElementById("descriptionGroup").style.display = "block";
+    document.getElementById("whatsappGroup").style.display = "none";
+    document.getElementById("description").required = true;
+    document.getElementById("whatsapp_message").required = false;
+  }
+}
+</script>
+{% endblock %}
