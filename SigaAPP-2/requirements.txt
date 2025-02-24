@@ -1,9 +1,0 @@
-Flask
-Flask-SQLAlchemy
-Flask-Migrate
-APScheduler
-gunicorn
-flask-login
-pytz
-sqlalchemy
-pywebpush
