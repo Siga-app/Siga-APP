@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, date
 from sqlalchemy import func, extract
 from io import BytesIO
 from openpyxl import Workbook
+from xhtml2pdf import pisa
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -30,7 +31,7 @@ def urlencode_filter(s):
         return urllib.parse.quote_plus(s)
     return s
 
-# MODELO DE SOLICITAÇÃO
+# MODELO DE SOLICITAÇÃO com relacionamento em cascata para mensagens
 class Solicitation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     parent_name = db.Column(db.String(100), nullable=False)
@@ -38,7 +39,7 @@ class Solicitation(db.Model):
     grade = db.Column(db.String(50), nullable=False)         # "Série - Turma"
     category = db.Column(db.String(50), nullable=False)
     subcategory = db.Column(db.String(50), nullable=True)
-    # Usaremos somente UM campo de texto para descrição
+    # Único campo para descrição (ou, se origem for WhatsAPP, usará whatsapp_message)
     description = db.Column(db.Text, nullable=False)
     whatsapp_message = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(50), default='Pendente')    # "Pendente", "Respondida", "Finalizada"
@@ -49,6 +50,8 @@ class Solicitation(db.Model):
     created_at = db.Column(db.DateTime, server_default=func.now())
     updated_at = db.Column(db.DateTime, server_default=func.now(), onupdate=func.now())
     created_by = db.Column(db.String(100), nullable=False, default="")
+    # Relacionamento com Message: cascade delete para remover mensagens associadas
+    messages = db.relationship('Message', backref='solicitation', cascade="all, delete-orphan", lazy=True)
 
 # MODELO DE MENSAGEM
 class Message(db.Model):
@@ -129,22 +132,22 @@ def register_solicitation():
         series = request.form['series']
         turma = request.form['turma']
         grade = f"{series} - {turma}"
-
+        
         category = request.form['category']
         subcategory = request.form.get('subcategory', '')
-        # Se a origem for WhatsAPP, usaremos o campo whatsapp_message; caso contrário, a descrição.
         origin = request.form['origem']
+        # Se a origem for WhatsAPP, usa o campo whatsapp_message; caso contrário, a descrição
         if origin == "WhatsAPP":
-            description = ""  # não usamos o campo descrição
+            description = ""
             whatsapp_message = request.form['whatsapp_message']
         else:
             description = request.form['description']
             whatsapp_message = ""
-
+        
         coordinator = request.form['coordinator']
         telefone = request.form.get('telefone', '')
 
-        # Para origens que exigem telefone, valida: somente dígitos, 10 ou 11
+        # Validação do telefone: somente dígitos (10 ou 11)
         if origin in ["Pessoalmente", "Ligação", "WhatsAPP"]:
             pattern = r'^\d{10,11}$'
             if not re.match(pattern, telefone):
@@ -154,10 +157,10 @@ def register_solicitation():
 
         possui_audio = request.form.get('possui_audio', 'off')
         if possui_audio == 'on':
-            if origin != "WhatsAPP":
-                description += "\n[Áudio disponível]"
-            else:
+            if origin == "WhatsAPP":
                 whatsapp_message += "\n[Áudio disponível]"
+            else:
+                description += "\n[Áudio disponível]"
 
         solicitation = Solicitation(
             parent_name=parent_name,
@@ -221,7 +224,7 @@ def dashboard():
         last_update_aware = pytz.utc.localize(last_update).astimezone(sp_tz)
         sol.urgent = (current_time - last_update_aware) > timedelta(hours=24)
 
-    # Atualize as categorias: substitua "DOENÇA" por "SAÚDE"
+    # Atualize as categorias: troque "DOENÇA" por "SAÚDE"
     categories = ["RECLAMAÇÃO", "SUGESTÃO", "DÚVIDAS", "PEDIDOS", "SAÚDE"]
     subcategories = ["", "SAÍDA ANTECIPADA", "AUTORIZACAO DE SAÍDA", "PEDIDO PARA REUNIÃO"]
     coordinators = ["Jéssica", "Bruna", "Flávia"]
@@ -267,7 +270,8 @@ def solicitation_detail(id):
         db.session.commit()
         return redirect(url_for('solicitation_detail', id=id))
 
-    messages = Message.query.filter_by(solicitation_id=id).order_by(Message.timestamp).all()
+    # Obtenha as mensagens usando o relacionamento "messages"
+    messages = solicitation.messages
     coord_message = None
     for m in reversed(messages):
         if m.sender in ["jessicaventura", "brunabeatriz", "flaviapinto"]:
@@ -307,7 +311,10 @@ def report_xls(id):
     ws.append(["Série/Turma", solicitation.grade])
     ws.append(["Categoria", solicitation.category])
     ws.append(["Subcategoria", solicitation.subcategory])
-    ws.append(["Descrição", solicitation.description if solicitation.origin != "WhatsAPP" else solicitation.whatsapp_message])
+    if solicitation.origin == "WhatsAPP":
+        ws.append(["Descrição", solicitation.whatsapp_message])
+    else:
+        ws.append(["Descrição", solicitation.description])
     ws.append(["Status", solicitation.status])
     ws.append(["Coordenadora", solicitation.coordinator])
     ws.append(["Origem", solicitation.origin])
@@ -317,10 +324,9 @@ def report_xls(id):
 
     ws2 = wb.create_sheet(title="Histórico Mensagens")
     ws2.append(["Remetente", "Mensagem", "Data/Hora"])
-    messages = Message.query.filter_by(solicitation_id=solicitation.id).order_by(Message.timestamp).all()
-    for m in messages:
+    for m in solicitation.messages:
         ws2.append([m.sender, m.content, m.timestamp.strftime("%d/%m/%Y %H:%M") if m.timestamp else ""])
-
+    
     stream = BytesIO()
     wb.save(stream)
     stream.seek(0)
