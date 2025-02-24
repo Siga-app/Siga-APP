@@ -1,0 +1,196 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard - SIGA{% endblock %}
+{% block content %}
+<h2>Dashboard</h2>
+<div class="mb-3">
+  <a href="{{ url_for('daily_report') }}" class="btn btn-dark">Gerar Relatório Diário</a>
+  <a href="{{ url_for('monthly_report') }}" class="btn btn-dark">Gerar Relatório Mensal</a>
+</div>
+<form method="GET" class="form-inline mb-3">
+  <label class="mr-2" for="filter_search">Buscar por Aluno:</label>
+  <input type="text" class="form-control mr-3" id="filter_search" name="filter_search" placeholder="Digite o nome" value="{{ filter_search }}">
+  <label class="mr-2" for="filter_category">Categoria:</label>
+  <select class="form-control mr-3" id="filter_category" name="filter_category">
+    <option value="">Todas</option>
+    {% for cat in categories %}
+      <option value="{{ cat }}" {% if cat == filter_category %}selected{% endif %}>{{ cat }}</option>
+    {% endfor %}
+  </select>
+  <label class="mr-2" for="filter_subcategory" id="filter_subcat_label" style="display:none;">Subcategoria:</label>
+  <select class="form-control mr-3" id="filter_subcategory" name="filter_subcategory" style="display:none;">
+    <option value="">Todas</option>
+    {% for sub in subcategories %}
+      <option value="{{ sub }}" {% if sub == filter_subcategory %}selected{% endif %}>{{ sub }}</option>
+    {% endfor %}
+  </select>
+  <label class="mr-2" for="filter_coordinator">Coordenadora:</label>
+  <select class="form-control mr-3" id="filter_coordinator" name="filter_coordinator">
+    <option value="">Todas</option>
+    {% for coord in coordinators %}
+      <option value="{{ coord }}" {% if coord == filter_coordinator %}selected{% endif %}>{{ coord }}</option>
+    {% endfor %}
+  </select>
+  <label class="mr-2" for="filter_status">Status:</label>
+  <select class="form-control mr-3" id="filter_status" name="filter_status">
+    <option value="">Todos</option>
+    {% for st in statuses %}
+      <option value="{{ st }}" {% if st == filter_status %}selected{% endif %}>{{ st }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="btn btn-info">Filtrar</button>
+</form>
+
+{% set pendentes = solicitations | selectattr("status", "equalto", "Pendente") | list %}
+{% set andamento = solicitations | selectattr("status", "equalto", "Respondida") | list %}
+{% set finalizadas = solicitations | selectattr("status", "equalto", "Finalizada") | list %}
+
+<h3>Solicitações Pendentes</h3>
+<div class="table-responsive mb-4">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Responsável</th>
+        <th>Aluno</th>
+        <th>Série/Turma</th>
+        <th>Categoria</th>
+        <th>Subcat.</th>
+        <th>Coordenadora</th>
+        <th>Status</th>
+        <th>Criado em</th>
+        <th>Atualizado em</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sol in pendentes %}
+      <tr {% if sol.urgent %}class="urgent-row"{% endif %}>
+        <td>{{ sol.id }}</td>
+        <td>{{ sol.parent_name }}</td>
+        <td>{{ sol.child_name }}</td>
+        <td>{{ sol.grade }}</td>
+        <td>{{ sol.category }}</td>
+        <td>{{ sol.subcategory }}</td>
+        <td>{{ sol.coordinator }}</td>
+        <td>{{ sol.status }}</td>
+        <td>{{ sol.created_at.strftime("%d/%m/%Y %H:%M") if sol.created_at else "" }}</td>
+        <td>{{ sol.updated_at.strftime("%d/%m/%Y %H:%M") if sol.updated_at else "" }}</td>
+        <td>
+          <a href="{{ url_for('solicitation_detail', id=sol.id) }}" class="btn btn-sm btn-info">Detalhes</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="11">Nenhuma solicitação pendente.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h3>Solicitações em Andamento</h3>
+<div class="table-responsive mb-4">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Responsável</th>
+        <th>Aluno</th>
+        <th>Série/Turma</th>
+        <th>Categoria</th>
+        <th>Subcat.</th>
+        <th>Coordenadora</th>
+        <th>Status</th>
+        <th>Criado em</th>
+        <th>Atualizado em</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sol in andamento %}
+      <tr {% if sol.urgent %}class="urgent-row"{% endif %}>
+        <td>{{ sol.id }}</td>
+        <td>{{ sol.parent_name }}</td>
+        <td>{{ sol.child_name }}</td>
+        <td>{{ sol.grade }}</td>
+        <td>{{ sol.category }}</td>
+        <td>{{ sol.subcategory }}</td>
+        <td>{{ sol.coordinator }}</td>
+        <td>{{ sol.status }}</td>
+        <td>{{ sol.created_at.strftime("%d/%m/%Y %H:%M") if sol.created_at else "" }}</td>
+        <td>{{ sol.updated_at.strftime("%d/%m/%Y %H:%M") if sol.updated_at else "" }}</td>
+        <td>
+          <a href="{{ url_for('solicitation_detail', id=sol.id) }}" class="btn btn-sm btn-info">Detalhes</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="11">Nenhuma solicitação em andamento.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h3>Solicitações Finalizadas</h3>
+<div class="table-responsive mb-4">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Responsável</th>
+        <th>Aluno</th>
+        <th>Série/Turma</th>
+        <th>Categoria</th>
+        <th>Subcat.</th>
+        <th>Coordenadora</th>
+        <th>Status</th>
+        <th>Criado em</th>
+        <th>Atualizado em</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sol in finalizadas %}
+      <tr {% if sol.urgent %}class="urgent-row"{% endif %}>
+        <td>{{ sol.id }}</td>
+        <td>{{ sol.parent_name }}</td>
+        <td>{{ sol.child_name }}</td>
+        <td>{{ sol.grade }}</td>
+        <td>{{ sol.category }}</td>
+        <td>{{ sol.subcategory }}</td>
+        <td>{{ sol.coordinator }}</td>
+        <td>{{ sol.status }}</td>
+        <td>{{ sol.created_at.strftime("%d/%m/%Y %H:%M") if sol.created_at else "" }}</td>
+        <td>{{ sol.updated_at.strftime("%d/%m/%Y %H:%M") if sol.updated_at else "" }}</td>
+        <td>
+          <a href="{{ url_for('solicitation_detail', id=sol.id) }}" class="btn btn-sm btn-info">Detalhes</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="11">Nenhuma solicitação finalizada.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  function updateSubcatFilterDisplay() {
+    var filterCat = document.getElementById('filter_category').value;
+    var subcatLabel = document.getElementById('filter_subcat_label');
+    var subcatSelect = document.getElementById('filter_subcategory');
+    if (filterCat === "PEDIDOS") {
+      subcatLabel.style.display = 'inline';
+      subcatSelect.style.display = 'inline';
+    } else {
+      subcatLabel.style.display = 'none';
+      subcatSelect.style.display = 'none';
+      subcatSelect.value = "";
+    }
+  }
+  document.getElementById('filter_category').addEventListener('change', updateSubcatFilterDisplay);
+  updateSubcatFilterDisplay();
+</script>
+{% endblock %}
